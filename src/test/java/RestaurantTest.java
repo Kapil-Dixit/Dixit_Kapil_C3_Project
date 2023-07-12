@@ -1,7 +1,4 @@
-import net.bytebuddy.asm.Advice;
-import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -11,23 +8,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(MockitoExtension.class)
 class RestaurantTest {
 
+//    RestaurantService service;
+
     Restaurant restaurant;
+
+    private static final int PRICE_OF_SWEET_CORN=119;
+    private static final int PRICE_OF_LASAGNE=269;
+
 
     //REFACTOR ALL THE REPEATED LINES OF CODE
     @BeforeEach
@@ -35,8 +31,8 @@ class RestaurantTest {
         LocalTime openingTime = LocalTime.parse("10:30:00");
         LocalTime closingTime = LocalTime.parse("22:00:00");
         restaurant =new Restaurant("Amelie's cafe","Chennai",openingTime,closingTime);
-        restaurant.addToMenu("Sweet corn soup",119);
-        restaurant.addToMenu("Vegetable lasagne", 269);
+        restaurant.addToMenu("Sweet corn soup",PRICE_OF_SWEET_CORN);
+        restaurant.addToMenu("Vegetable lasagne", PRICE_OF_LASAGNE);
     }
 
     //>>>>>>>>>>>>>>>>>>>>>>>>>OPEN/CLOSED<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -103,4 +99,41 @@ class RestaurantTest {
                 ()->restaurant.removeFromMenu("French fries"));
     }
     //<<<<<<<<<<<<<<<<<<<<<<<MENU>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    //<<<<<<<<<<<<<<<<<<<<<<<Order Value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    @Test
+    public void no_items_selected_from_menu_should_give_0_order_value_when_empty_list_provided() {
+        List<String> emptyListOfItems = new ArrayList<>();
+        int expectedItemPrice = 0;
+        assertEquals(expectedItemPrice, restaurant.getTotalPrice(emptyListOfItems));
+    }
+    @Test
+    public void order_value_should_equal_sum_of_prices_of_items_selected() {
+        List<String> itemList = setupItemList();
+        assertEquals(PRICE_OF_LASAGNE + PRICE_OF_SWEET_CORN, restaurant.getTotalPrice(itemList));
+    }
+    @Test
+    public void order_value_should_decrease_by_the_price_of_item_if_that_item_is_unselected_from_order() {
+        List<String> itemList = setupItemList();
+        assertEquals(PRICE_OF_LASAGNE + PRICE_OF_SWEET_CORN, restaurant.getTotalPrice(itemList));
+        itemList.remove("Vegetable lasagne");
+        assertEquals(PRICE_OF_SWEET_CORN, restaurant.getTotalPrice(itemList));
+    }
+
+    @Test
+    public void order_value_should_increase_by_the_price_of_item_if_that_item_is_selected_to_order() {
+        List<String> itemList= new ArrayList<>();
+        itemList.add("Sweet corn soup");
+        assertEquals(PRICE_OF_SWEET_CORN, restaurant.getTotalPrice(itemList));
+        itemList.add("Vegetable lasagne");
+        assertEquals(PRICE_OF_LASAGNE + PRICE_OF_SWEET_CORN, restaurant.getTotalPrice(itemList));
+    }
+    private List<String> setupItemList() {
+        List<String> itemList= new ArrayList<>();
+        itemList.add("Sweet corn soup");
+        itemList.add("Vegetable lasagne");
+        return itemList;
+    }
+
+    //<<<<<<<<<<<<<<<<<<<<<<<Order Value>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 }
