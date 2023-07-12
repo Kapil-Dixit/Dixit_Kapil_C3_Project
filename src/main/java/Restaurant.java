@@ -1,5 +1,3 @@
-import java.sql.SQLOutput;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +22,7 @@ public class Restaurant {
         // if current time is before the opening time OR after the closing time on the time-line scale
         // this is applicable to timeline during the same day
 
-        if((currentTime.isBefore(openingTime)) || (currentTime.isAfter(closingTime))) {
+        if(currentTime.isBefore(openingTime) || currentTime.isAfter(closingTime)) {
             return false;
         }
         // else return true
@@ -68,5 +66,13 @@ public class Restaurant {
 
     public String getName() {
         return name;
+    }
+
+    public int getTotalPrice(List<String> itemNamesSelected) {
+        int totalOrderValue = 0;
+        for (String itemName :  itemNamesSelected) {
+            totalOrderValue += findItemByName(itemName).getPrice();
+        }
+        return totalOrderValue;
     }
 }
